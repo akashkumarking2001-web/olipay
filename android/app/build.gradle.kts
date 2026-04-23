@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "in.olipay.app"
-    compileSdk = 34 // Reverted to stable 34 for better compatibility with GitHub Actions
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -22,13 +22,14 @@ android {
     defaultConfig {
         applicationId = "in.olipay.app"
         minSdk = 24
-        targetSdk = 34 // Reverted to stable 34
+        targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
+            // Using debug signing for now so it builds easily without a keystore
             signingConfig = signingConfigs.getByName("debug")
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
