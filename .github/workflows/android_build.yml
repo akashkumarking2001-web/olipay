@@ -31,6 +31,8 @@ jobs:
 
       - name: Build APK
         run: |
+          ls -R
+          find . -name "gradlew"
           chmod +x android/gradlew
           cd android
           ./gradlew assembleRelease --stacktrace 2>&1 | tail -100
