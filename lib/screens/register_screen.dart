@@ -116,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _currentStep = 3; 
     });
     final uid = _auth.currentUser?.uid ?? "user_${_phoneController.text}";
-    _startCashfreePayment(uid);
+    _onPaymentSuccess(uid);
   }
 
   void _showDemoBypassDialog(String error, String phone) {
@@ -154,11 +154,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Future<void> _startCashfreePayment(String uid) async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
-    _onPaymentSuccess(uid);
-  }
 
   Future<void> _onPaymentSuccess(String uid) async {
     setState(() => _isLoading = true);
