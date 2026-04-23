@@ -28,8 +28,7 @@ android {
     }
 
     buildTypes {
-        release {
-            // Using debug signing for now so it builds easily without a keystore
+        getByName("release") {
             signingConfig = signingConfigs.getByName("debug")
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
