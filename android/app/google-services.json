@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "321249670074",
+    "project_id": "soundbox-ce475",
+    "storage_bucket": "soundbox-ce475.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:321249670074:android:23466070eb540ad93b6383",
+        "android_client_info": {
+          "package_name": "in.olipay.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPnF2ZQ-tHB1tb1Fs_KU9ypf3zZIdGWyg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
