@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "in.olipay.app"
-    compileSdk = 36 // Updated to latest
+    compileSdk = 34 // Reverted to stable 34 for better compatibility with GitHub Actions
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -21,8 +21,8 @@ android {
 
     defaultConfig {
         applicationId = "in.olipay.app"
-        minSdk = 24 // Android 7.0+ for better compatibility
-        targetSdk = 35 // Support latest Android versions
+        minSdk = 24
+        targetSdk = 34 // Reverted to stable 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
