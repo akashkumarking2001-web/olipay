@@ -32,7 +32,9 @@ jobs:
       - name: Build APK
         run: |
           chmod +x android/gradlew
-          flutter build apk --release --no-tree-shake-icons -v
+          flutter clean
+          flutter pub get
+          flutter build apk --release --no-tree-shake-icons
 
       - name: Find APK
         run: find . -name "*.apk" -type f
@@ -41,4 +43,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: olipay-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: "**/*.apk"
