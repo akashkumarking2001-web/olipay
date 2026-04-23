@@ -32,13 +32,11 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
-      - name: Find APKs (Debugging)
-        run: |
-          echo "Searching for APKs..."
-          find . -name "*.apk"
-          
+      - name: Find APK
+        run: find . -name "*.apk" -type f
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: olipay-release-apk
-          path: "**/*.apk" # Search everywhere for the APK
+          path: build/app/outputs/flutter-apk/app-release.apk
