@@ -32,9 +32,9 @@ jobs:
       - name: Build APK
         run: |
           chmod +x android/gradlew
-          flutter clean
-          flutter pub get
-          flutter build apk --release --no-tree-shake-icons
+          flutter build bundle
+          cd android
+          ./gradlew assembleRelease --stacktrace
 
       - name: Find APK
         run: find . -name "*.apk" -type f
