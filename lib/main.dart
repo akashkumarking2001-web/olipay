@@ -6,13 +6,19 @@ import 'screens/splash_screen.dart';
 import 'screens/language_selection_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/notification_service.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
-    // Initialize Firebase with error handling
-    await Firebase.initializeApp();
+    // Initialize Firebase with timeout to prevent white screen hang
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    ).timeout(const Duration(seconds: 5), onTimeout: () {
+      debugPrint("Firebase initialization timed out");
+      return Firebase.app(); // Return default app if it exists, otherwise it will throw which is caught
+    });
     
     // Initialize Background Notification Service
     NotificationService.init();
