@@ -27,6 +27,12 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        getByName("debug") {
+            // Default debug config is usually handled by Flutter, but explicit definition helps stability
+        }
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
