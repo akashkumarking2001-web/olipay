@@ -1,3 +1,5 @@
+extra["kotlin_version"] = "1.9.24"
+
 allprojects {
     repositories {
         google()
