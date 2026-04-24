@@ -1,4 +1,4 @@
-package in.olipay.app
+package `in`.olipay.app
 
 import io.flutter.embedding.android.FlutterActivity
 
