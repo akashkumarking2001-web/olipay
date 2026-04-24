@@ -27,14 +27,14 @@ jobs:
 
       - name: Install Android API 36
         run: |
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
       - name: Build APK
         run: |
-          flutter build apk --release
+          flutter build apk --release --debug
         env:
-          GRADLE_OPTS: "-Xmx6144m -XX:MaxMetaspaceSize=1024m -Dorg.gradle.jvmargs='-Xmx4096m -XX:MaxMetaspaceSize=1024m'"
+          GRADLE_OPTS: "-Xmx4096m -XX:MaxMetaspaceSize=1024m"
 
       - name: Find APK
         run: find . -name "*.apk" -type f
