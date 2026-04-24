@@ -33,10 +33,9 @@ jobs:
 
       - name: Build APK
         run: |
-          chmod +x android/gradlew
-          flutter build bundle
-          cd android
-          ./gradlew assembleRelease --stacktrace
+          flutter build apk --release
+        env:
+          GRADLE_OPTS: "-Xmx4096m -XX:MaxMetaspaceSize=1024m"
 
       - name: Find APK
         run: find . -name "*.apk" -type f
