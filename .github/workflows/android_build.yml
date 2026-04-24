@@ -32,7 +32,7 @@ jobs:
 
       - name: Build APK
         run: |
-          flutter build apk --release --debug
+          flutter build apk --release --verbose
         env:
           GRADLE_OPTS: "-Xmx4096m -XX:MaxMetaspaceSize=1024m"
 
