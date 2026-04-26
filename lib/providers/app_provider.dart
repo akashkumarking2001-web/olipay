@@ -16,6 +16,7 @@ class AppProvider extends ChangeNotifier {
   bool _vibrateEnabled = true;
   Timer? _pollingTimer;
   StreamSubscription<QuerySnapshot>? _transactionSubscription;
+  String? _customUid;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -25,6 +26,7 @@ class AppProvider extends ChangeNotifier {
   bool get isListening => _isListening;
   List<PaymentInfo> get recentTransactions => _recentTransactions;
   bool get vibrateEnabled => _vibrateEnabled;
+  String? get uid => _customUid ?? _auth.currentUser?.uid;
 
   double get totalToday {
     final now = DateTime.now();
@@ -57,13 +59,21 @@ class AppProvider extends ChangeNotifier {
     _setupFirestoreListener();
   }
 
+  Future<void> setSession(String uid) async {
+    _customUid = uid;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('custom_uid', uid);
+    _setupFirestoreListener();
+    notifyListeners();
+  }
+
   void _setupFirestoreListener() {
     _transactionSubscription?.cancel();
-    final user = _auth.currentUser;
-    if (user != null) {
+    final currentUid = uid;
+    if (currentUid != null) {
       _transactionSubscription = _firestore
           .collection('users')
-          .doc(user.uid)
+          .doc(currentUid)
           .collection('transactions')
           .orderBy('timestamp', descending: true)
           .limit(50)
@@ -99,10 +109,11 @@ class AppProvider extends ChangeNotifier {
     _selectedLanguage = prefs.getString('selected_language') ?? 'en-IN';
     _voiceLanguage = prefs.getString('voice_language') ?? 'en-IN';
     _vibrateEnabled = prefs.getBool('vibrate_enabled') ?? true;
-    _refreshTransactions(prefs);
+    _customUid = prefs.getString('custom_uid');
     
-    // Auto-delete older than 30 days
+    _refreshTransactions(prefs);
     _cleanOldTransactions(prefs);
+    _setupFirestoreListener();
     notifyListeners();
   }
 
@@ -134,7 +145,7 @@ class AppProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       var rawList = prefs.getStringList('transactions') ?? [];
       if (rawList.length != _recentTransactions.length || 
-         (rawList.isNotEmpty && jsonDecode(rawList.first)['timestamp'] != _recentTransactions.first.timestamp.toIso8601String())) {
+         (rawList.isNotEmpty && _recentTransactions.isNotEmpty && jsonDecode(rawList.first)['timestamp'] != _recentTransactions.first.timestamp.toIso8601String())) {
         _refreshTransactions(prefs);
         notifyListeners();
       }
@@ -220,9 +231,9 @@ class AppProvider extends ChangeNotifier {
     await prefs.setStringList('transactions', rawList);
     
     // 2. Add to Firestore if logged in
-    final user = _auth.currentUser;
-    if (user != null) {
-      await _firestore.collection('users').doc(user.uid).collection('transactions').add({
+    final currentUid = uid;
+    if (currentUid != null) {
+      await _firestore.collection('users').doc(currentUid).collection('transactions').add({
         'amount': payment.amount,
         'senderName': payment.senderName,
         'appName': payment.appName,
@@ -232,6 +243,16 @@ class AppProvider extends ChangeNotifier {
       });
     }
     
+    notifyListeners();
+  }
+
+  Future<void> signOut() async {
+    _customUid = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('custom_uid');
+    await _auth.signOut();
+    _transactionSubscription?.cancel();
+    _recentTransactions.clear();
     notifyListeners();
   }
 }

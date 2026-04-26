@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "olipay.app"
-    compileSdk = 34
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

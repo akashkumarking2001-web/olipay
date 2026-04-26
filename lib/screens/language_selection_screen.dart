@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../utils/translations.dart';
 import 'landing_page.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
@@ -36,70 +37,74 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 20),
-                        const Text(
-                          'Customize Your Experience',
-                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Choose your preferred language for the app and voice alerts.',
-                          style: TextStyle(fontSize: 16, color: Color(0xFF64748B)),
-                        ),
-                        const SizedBox(height: 40),
-                        _buildSectionHeader('App Interface Language', Icons.language_rounded),
-                        const SizedBox(height: 16),
-                        _buildLanguageGrid(true),
-                        const SizedBox(height: 40),
-                        _buildSectionHeader('Voice Notification Language', Icons.record_voice_over_rounded),
-                        const SizedBox(height: 16),
-                        _buildLanguageGrid(false),
-                        const SizedBox(height: 100),
-                      ],
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    Text(
+                      Translations.get('title', tempAppLang),
+                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5),
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    Text(
+                      Translations.get('subtitle', tempAppLang),
+                      style: const TextStyle(fontSize: 16, color: Color(0xFF64748B)),
+                    ),
+                    const SizedBox(height: 40),
+                    _buildSectionHeader(Translations.get('app_lang', tempAppLang), Icons.language_rounded),
+                    const SizedBox(height: 16),
+                    _buildLanguageGrid(true),
+                    const SizedBox(height: 40),
+                    _buildSectionHeader(Translations.get('voice_lang', tempAppLang), Icons.record_voice_over_rounded),
+                    const SizedBox(height: 16),
+                    _buildLanguageGrid(false),
+                    const SizedBox(height: 40),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            _buildBottomAction(),
+          ],
         ),
       ),
-      bottomSheet: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))],
-        ),
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 552),
-            width: double.infinity,
-            height: 60,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4285F4),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-              onPressed: () async {
-                final provider = Provider.of<AppProvider>(context, listen: false);
-                await provider.setLanguage(tempAppLang);
-                await provider.setVoiceLanguage(tempVoiceLang);
+    );
+  }
+
+  Widget _buildBottomAction() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))],
+      ),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 500),
+          width: double.infinity,
+          height: 60,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4285F4),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            onPressed: () async {
+              final provider = Provider.of<AppProvider>(context, listen: false);
+              await provider.setLanguage(tempAppLang);
+              await provider.setVoiceLanguage(tempVoiceLang);
+              if (mounted) {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LandingPage()));
-              },
-              child: const Text('Save & Continue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              }
+            },
+            child: Text(
+              Translations.get('save_continue', tempAppLang), 
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
             ),
           ),
         ),
