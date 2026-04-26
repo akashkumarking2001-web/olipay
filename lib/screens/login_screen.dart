@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -44,10 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final userDoc = await _firestore.collection('users').where('phone', isEqualTo: phone).get();
-      
+      final userDoc = await _firestore.collection('users')
+          .where('phone', isEqualTo: phone)
+          .get()
+          .timeout(const Duration(seconds: 10));
+
       if (userDoc.docs.isEmpty) {
-        throw "No account found for this number. Please register.";
+        throw "Account not found. Please register first.";
       }
 
       final userData = userDoc.docs.first.data();
@@ -55,13 +59,21 @@ class _LoginScreenState extends State<LoginScreen> {
         final uid = userDoc.docs.first.id;
         if (mounted) {
           await Provider.of<AppProvider>(context, listen: false).setSession(uid);
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomeScreen()), (route) => false);
         }
       } else {
         throw "Incorrect PIN. Please try again.";
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      String errorMsg = e.toString();
+      if (e is TimeoutException) errorMsg = "Connection timed out. Please check your internet.";
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(errorMsg),
+          backgroundColor: Colors.red,
+        ));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,37 +43,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     setState(() => _isLoading = true);
+    debugPrint("Starting registration for $phone...");
 
     try {
-      // Check if user already exists
-      final userDoc = await _firestore.collection('users').where('phone', isEqualTo: phone).get();
-      if (userDoc.docs.isNotEmpty) {
+      final uid = "user_$phone";
+      
+      // Check if user already exists (Direct lookup is more robust than query)
+      debugPrint("Checking if user exists (UID: $uid)...");
+      final userDoc = await _firestore.collection('users').doc(uid).get().timeout(const Duration(seconds: 10));
+      debugPrint("User check complete. Exists: ${userDoc.exists}");
+      
+      if (userDoc.exists) {
         throw "An account with this phone number already exists.";
       }
 
-      final uid = "user_$phone";
       int days = _selectedPlan.contains('Monthly') ? 30 : 365;
       if (_selectedPlan.contains('Trial')) days = 30; 
       
+      debugPrint("Saving user to Firestore...");
       await _firestore.collection('users').doc(uid).set({
         'shopName': shop,
         'phone': phone,
-        'pin': pin, // Storing PIN for custom auth
+        'pin': pin,
         'plan': _selectedPlan,
         'joinedAt': FieldValue.serverTimestamp(),
         'expiryDate': DateTime.now().add(Duration(days: days)),
         'role': 'merchant',
         'status': 'active',
-      });
+      }).timeout(const Duration(seconds: 10));
+      debugPrint("Firestore save successful.");
 
       // Set session in provider
       if (mounted) {
-        await Provider.of<AppProvider>(context, listen: false).setSession(uid);
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        debugPrint("Setting session in provider...");
+        final provider = Provider.of<AppProvider>(context, listen: false);
+        await provider.setSession(uid);
+        debugPrint("Session set. Navigating to home...");
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomeScreen()), (route) => false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      debugPrint("Registration Error: $e");
+      String errorMsg = e.toString();
+      if (e is TimeoutException) errorMsg = "Connection timed out. Please check your internet.";
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(errorMsg),
+          backgroundColor: Colors.red,
+        ));
+      }
     } finally {
+      debugPrint("Registration process finished.");
       if (mounted) setState(() => _isLoading = false);
     }
   }
